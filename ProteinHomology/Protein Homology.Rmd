@@ -1,0 +1,28 @@
+---
+title: "Protein Homology"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+* Hume Dickie <hdickie@dons.usfca.edu>
+* John LaGue <jalague@dons.usfca.edu>
+* Chezka Sino <msino@dons.usfca.edu>
+
+project introduction here
+
+## Predictor selection for protein homology problem
+
+```{r predictor_selection}
+
+data <- read.table("bio_train.dat")
+glm.fit <- glm(V3~.,data = data,family = "binomial")
+
+summary(glm.fit)
+
+```
+
+The 0-star p-values tell us that we can ignore variables V9, V10, V12, V14, V18-20, V24-30, V32, V37-40, V44-46, V54, V55, V72, V73. We also ignore V1 and V2 since we know that they are irrelevant from the documentation.
+
