@@ -1,4 +1,13 @@
-#PROJECT 
+#Data Mining PROJECT 
+#John LaGue
+
+#Our initial code using logisitc regression and upsampling
+#This code is my attempt at reducing the number of predictor variables and then applying bootstrap (random sampling with replacement) upsampling to the data set
+# We found that upsampling only a small amount (rather than 50/50 for each class, we did 85/15) provided the best results. 
+#The data without alteration has a 99/1 ratio of 0s to 1s in the target variable column
+#*****See 'try 4' for our best logistic model using upsampling
+
+
 library(randomForest)
 library(MASS)
 library(class)
@@ -136,13 +145,16 @@ probsTest12<- predict(balancing_logit2T, newdata= test, type='response')
 predsTest12=ifelse(probsTest12>0.915,1,0)
 table(predsTest12, test[,3])
 mean(predsTest12==test[,3])
-# BEST?
+
 
 #-------------------------Try 4------------------------- 
+
+#****************THIS IS BEST LOGISTIC MODEL AND FINAL MODEL USED FOR JOHNS RESULTS ***************************************
 
 #balancing_logit3<- suppressWarnings(glm(attribute_2~., data=train, family='binomial'))
 #summary(balancing_logit3)
 
+#best performing model. Make sure to reset the training and testing sets before adding upsampling.
 balancing_logit3T<-suppressWarnings(glm(attribute_2~ attribute_0 + attribute_1+attribute_3+attribute_4+ attribute_6+attribute_7+ attribute_8+attribute_9+attribute_10+attribute_11+ attribute_12+attribute_13+attribute_14+ attribute_15+ attribute_16+attribute_20+ attribute_21+attribute_22+ attribute_23+attribute_25+ attribute_32+ attribute_33+attribute_34+attribute_35+attribute_36+attribute_37+attribute_39+attribute_40+attribute_42+attribute_47+ attribute_48+ attribute_49+ attribute_50+ attribute_52+attribute_55+ attribute_56+attribute_59+attribute_60+attribute_63+attribute_64+attribute_65+attribute_66+attribute_67+attribute_68+attribute_69+attribute_70+attribute_71+attribute_72+attribute_73+attribute_74+attribute_75, data=train, family='binomial'))
 summary(balancing_logit3T)
 
@@ -175,6 +187,6 @@ table(base_lda, test[,3])
 mean(base_lda==test[,3])
 
 
-#trying logistic on full 
+#LDA resulted in numerous errors
 
 
