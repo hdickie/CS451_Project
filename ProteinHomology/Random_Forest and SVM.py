@@ -2,6 +2,20 @@
 """
 Created on Fri Oct 28 03:54:52 2016
 
+
+This script reads in our dataset of homologous proteins in arff format and then has code for 
+running the data through a random forest. There are three sections in order to hand skewed/ unbalanced data. 
+The first random forest is run on the original data set. The second is run on upsampled versions 
+of the data set. To upsample we found all of the 1s values in the target variable and copied them various
+amounts of times into the training set. We also upsampled by randomly sampling the 1s rather than a direct
+duplication of all 1s rows. The 3rd random forest is for downsampling. For downsampling we copied all of the
+1s rows and then randomly selected an equal number of 0s rows.
+At the bottom of the script is an attempt to run a SVM with the data. However, this model would never finish running.
+We found more success with SVM in R, but have still included our Python attempt below.
+
+The results for the random forests are output in terms of accuracy, area under ROC, and a plot of the ROC
+
+
 @author: John
 """
 import pandas as pd
