@@ -57,7 +57,7 @@ testing= test.drop(2, axis=1)
 ''' Random forest --------------------------------------------------------------------------------'''
 
 print("-------------------------------Random Forest-------------------------------------------")
-
+print("Original data")
 clf=RandomForestClassifier(n_estimators=76)
 RNNfit=clf.fit(X=training, y=target,sample_weight=None)
 print("Feature importence Array: \n",RNNfit.feature_importances_)
@@ -101,10 +101,10 @@ plt.show()
 
 
 '''--------Random Forest with Upsample---------------------------'''
-'''
+print("Upsample")
 to_add=data.loc[data[2] == 1]
 newtrain=train
-for i in range(0, 100):
+for i in range(0, 40):
     ones= to_add.sample(len(to_add),replace=True)
     frames=[newtrain,ones]    
     newtrain=pd.concat(frames)
@@ -117,7 +117,7 @@ RNNfit=clf.fit(X=newtraining, y=newtarget,sample_weight=None)
 print("Feature importence Array: \n",RNNfit.feature_importances_)
 RNNpred= clf.predict(testing)
 print()
-'''
+
 '''Trainging Accuracy Random Forest----'''
 '''
 print("Training")
@@ -135,7 +135,7 @@ print(roc_auc)
 '''
 
 '''Testing--------------------------------'''
-'''
+
 print()
 RNNpred= clf.predict(testing)
 
@@ -156,13 +156,12 @@ print(roc_auc)
 plt.figure()
 plt.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc, lw=4 )
 plt.show()
-'''
+
 
 '''--------Random Forest with Downsample---------------------------'''
-'''
+print("Downsample")
 to_add=data.loc[data[2] == 1]
 to_remove=data.loc[data[2] == 0]
-
 
 newtrain=to_add
 extract=to_remove.sample(n=len(to_add),replace=True)
@@ -178,7 +177,7 @@ RNNfit=clf.fit(X=newtraining, y=newtarget,sample_weight=None)
 print("Feature importence Array: \n",RNNfit.feature_importances_)
 RNNpred= clf.predict(testing)
 print()
-'''
+
 '''Trainging Accuracy Random Forest----'''
 '''
 print("Training")
@@ -193,10 +192,10 @@ print ("confusion matrix: \n", cm)
 fpr, tpr, thresholds = roc_curve(newtarget, RNNpred)
 roc_auc = auc(fpr, tpr)
 print(roc_auc)
+'''
 
-'''
 '''Testing--------------------------------'''
-'''
+
 RNNpred= clf.predict(testing)
 print()
 #for imp in range(0, len(importances)):
@@ -219,7 +218,7 @@ plt.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc, lw=4 )
 plt.show()
 
 
-'''
+
 
 
 '''SVM------------------------------------------------------------------------------------------------------------'''
