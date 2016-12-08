@@ -2,6 +2,20 @@
 """
 Created on Fri Oct 28 03:54:52 2016
 
+
+This script reads in our dataset of homologous proteins in arff format and then has code for 
+running the data through a random forest. There are three sections in order to hand skewed/ unbalanced data. 
+The first random forest is run on the original data set. The second is run on upsampled versions 
+of the data set. To upsample we found all of the 1s values in the target variable and copied them various
+amounts of times into the training set. We also upsampled by randomly sampling the 1s rather than a direct
+duplication of all 1s rows. The 3rd random forest is for downsampling. For downsampling we copied all of the
+1s rows and then randomly selected an equal number of 0s rows.
+At the bottom of the script is an attempt to run a SVM with the data. However, this model would never finish running.
+We found more success with SVM in R, but have still included our Python attempt below.
+
+The results for the random forests are output in terms of accuracy, area under ROC, and a plot of the ROC
+
+
 @author: John
 """
 import pandas as pd
@@ -41,16 +55,17 @@ testing= test.drop(2, axis=1)
 
 
 ''' Random forest --------------------------------------------------------------------------------'''
-'''
+
 print("-------------------------------Random Forest-------------------------------------------")
+print("Original data")
 clf=RandomForestClassifier(n_estimators=76)
 RNNfit=clf.fit(X=training, y=target,sample_weight=None)
 print("Feature importence Array: \n",RNNfit.feature_importances_)
 RNNpred= clf.predict(testing)
 print()
-'''
-'''Trainging Accuracy Random Forest----'''
-'''
+
+'''Training Accuracy Random Forest----'''
+
 RNNpred= clf.predict(training)
 print()
 
@@ -64,10 +79,10 @@ print ("confusion matrix: \n", cm)
 fpr, tpr, thresholds = roc_curve(target, RNNpred)
 roc_auc = auc(fpr, tpr)
 print(roc_auc)
-'''
+
 
 ''' Test Accuracy Random Forest--------'''  
-'''
+
 RNNpred= clf.predict(testing)
 print("Performance on test set \n")
 
@@ -83,14 +98,16 @@ print(roc_auc)
 plt.figure()
 plt.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc, lw=4 )
 plt.show()
-'''
+
 
 '''--------Random Forest with Upsample---------------------------'''
-
+print("Upsample")
 to_add=data.loc[data[2] == 1]
 newtrain=train
 for i in range(0, 40):
-    newtrain.append(to_add)
+    ones= to_add.sample(len(to_add),replace=True)
+    frames=[newtrain,ones]    
+    newtrain=pd.concat(frames)
 
 newtarget = newtrain[2]
 newtraining=newtrain.drop(2, axis=1)
@@ -101,9 +118,25 @@ print("Feature importence Array: \n",RNNfit.feature_importances_)
 RNNpred= clf.predict(testing)
 print()
 
+'''Trainging Accuracy Random Forest----'''
+'''
+print("Training")
+RNNpred= clf.predict(newtraining)
+print()
+
+accuracy = accuracy_score(newtarget, RNNpred)
+print("accuracy: ", accuracy)
+cm = confusion_matrix(newtarget, RNNpred)
+print ("confusion matrix: \n", cm)
+
+fpr, tpr, thresholds = roc_curve(newtarget, RNNpred)
+roc_auc = auc(fpr, tpr)
+print(roc_auc)
+'''
 
 '''Testing--------------------------------'''
 
+print()
 RNNpred= clf.predict(testing)
 
 #for imp in range(0, len(importances)):
@@ -111,7 +144,64 @@ RNNpred= clf.predict(testing)
 
 print("Performance on test set \n")
 
+accuracy = accuracy_score(testtarget, RNNpred)
+print("accuracy: ", accuracy)
+cm = confusion_matrix(testtarget, RNNpred)
+print ("confusion matrix: \n", cm)
 
+fpr, tpr, thresholds = roc_curve(testtarget, RNNpred)
+roc_auc = auc(fpr, tpr)
+print(roc_auc)
+
+plt.figure()
+plt.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc, lw=4 )
+plt.show()
+
+
+'''--------Random Forest with Downsample---------------------------'''
+print("Downsample")
+to_add=data.loc[data[2] == 1]
+to_remove=data.loc[data[2] == 0]
+
+newtrain=to_add
+extract=to_remove.sample(n=len(to_add),replace=True)
+
+frames=[newtrain,extract]
+newtrain=pd.concat(frames)
+
+newtarget = newtrain[2]
+newtraining=newtrain.drop(2, axis=1)
+
+clf=RandomForestClassifier(n_estimators=76)
+RNNfit=clf.fit(X=newtraining, y=newtarget,sample_weight=None)
+print("Feature importence Array: \n",RNNfit.feature_importances_)
+RNNpred= clf.predict(testing)
+print()
+
+'''Trainging Accuracy Random Forest----'''
+'''
+print("Training")
+RNNpred= clf.predict(newtraining)
+print()
+
+accuracy = accuracy_score(newtarget, RNNpred)
+print("accuracy: ", accuracy)
+cm = confusion_matrix(newtarget, RNNpred)
+print ("confusion matrix: \n", cm)
+
+fpr, tpr, thresholds = roc_curve(newtarget, RNNpred)
+roc_auc = auc(fpr, tpr)
+print(roc_auc)
+'''
+
+'''Testing--------------------------------'''
+
+RNNpred= clf.predict(testing)
+print()
+#for imp in range(0, len(importances)):
+ #   print(importances)
+
+print("Performance on test set \n")
 
 
 accuracy = accuracy_score(testtarget, RNNpred)
@@ -126,6 +216,9 @@ print(roc_auc)
 plt.figure()
 plt.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc, lw=4 )
 plt.show()
+
+
+
 
 
 '''SVM------------------------------------------------------------------------------------------------------------'''
